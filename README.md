@@ -1,22 +1,22 @@
 # LASU Smart Campus Navigator
 
-A mobile-first campus map and destination search for Lagos State University, Ojo. This first milestone provides an interactive MapLibre map and searches a small, source-linked place catalog. It does not provide routes, turn-by-turn navigation, indoor navigation, or live campus conditions.
+A mobile-first MapLibre application foundation for Lagos State University. The interface includes a responsive campus map, destination search, a selected-place details panel, and browser geolocation. No LASU-verified campus destination dataset is available in this milestone, so the map clearly shows that destination pins are pending verification.
 
 ## Requirements
 
-- Node.js 20.19+ (the project was verified with Node.js 24)
+- Node.js 20.19+ (verified with Node.js 24)
 - npm
 
 ## Installation and development
 
-In PowerShell or another terminal, from the project directory:
+From the repository directory in PowerShell or another terminal:
 
 ```powershell
 npm install
 npm run dev
 ```
 
-Open <http://localhost:3000>. The public OpenFreeMap style is configured as the default and does not require registration or an API key. An internet connection is needed to fetch the map style and tiles. Search works from the bundled place catalog.
+Open <http://localhost:3000>. Search currently covers two source-linked OpenStreetMap records. They are marked provisional, and the app does not show them as map pins or zoom to their coordinates. Search, details, and the base map remain available while LASU-approved place data is pending.
 
 ## Checks
 
@@ -27,37 +27,36 @@ npm test
 npm run build
 ```
 
-`npm test` runs the Vitest unit tests for the campus-place catalog and search function.
+Vitest tests cover the typed place model, verified-only map filtering, search behavior, empty datasets, and map-style URL validation.
 
 ## Map provider configuration
 
-MapLibre GL JS renders the map. The provider settings are isolated in `src/lib/map-provider.ts`; the user interface does not contain the tile service URL.
-
-The default style is OpenFreeMap Positron:
+MapLibre GL JS renders the map. Provider configuration is kept in `src/lib/map-provider.ts`. By default, the app uses the OpenFreeMap Positron style, which requires no API key:
 
 ```text
 https://tiles.openfreemap.org/styles/positron
 ```
 
-To select another compatible MapLibre style, copy `.env.example` to `.env.local` and set the public style URL:
+To use another compatible style, copy `.env.example` to `.env.local` and set `NEXT_PUBLIC_MAP_STYLE_URL`:
 
 ```dotenv
 NEXT_PUBLIC_MAP_STYLE_URL=https://your-provider.example/style.json
 ```
 
-Restart the dev server after changing environment configuration. Only put public style URLs in `NEXT_PUBLIC_*` variables; never put private credentials there. If the selected style requires a key, use an appropriately restricted public browser key and review that provider's terms. Confirm that the selected style provides the correct attribution metadata, which MapLibre displays on the map.
+Only HTTPS style URLs without embedded credentials are accepted. An absent or blank value uses the default style; an invalid value produces an accessible map configuration error. Never put private credentials in a `NEXT_PUBLIC_*` variable. If another provider requires a browser key, use a restricted public key and check its terms.
 
-MapLibre reads and displays attribution from the selected style. The app uses the OpenFreeMap public instance by default, which currently documents public use without API keys or request limits. It is provided as-is, so production deployments should review the provider's current terms and consider self-hosting or a service with an SLA if availability guarantees are needed.
+MapLibre displays attribution declared by the selected style. OpenFreeMap's public instance currently documents keyless public use and no request limits, but is offered as-is without an availability guarantee. Review the provider's current terms and availability before production use. Do not bulk-download or prefetch tiles unless the chosen provider explicitly permits it.
 
 ## Place data and verification
 
-Place data and search are in `src/lib/campus-places.ts`. Each place carries an ID, category, coordinates, description, verification status, and source record. The starter catalog contains two OpenStreetMap-derived records. Both are explicitly `provisional`: they have not been confirmed by LASU, and the university campus point represents a campus feature rather than a building entrance. The data should only be marked `verified` after LASU confirms the place name and location.
+`src/lib/campus-places.ts` defines the typed place model and search. Verified places must include coordinates; provisional records can include sourced coordinates or `null`; unverified records have `null` coordinates. Only `verified` records with coordinates can be drawn or selected from map pins.
+
+The starter catalog includes two OpenStreetMap-derived records. Their source records are linked in the selected-place panel, but neither has been confirmed by LASU. The university feature coordinate is an approximate area reference, not an entrance. The School of Transport and Logistics feature also needs LASU confirmation. Both records remain provisional, and neither is shown as a pin. Add LASU-approved and field-checked data before changing a record to `verified`.
 
 ## Known limitations
 
-- The map and place search need an internet connection; there is no offline map cache.
-- Search only covers the two bundled sample records. There is no geocoder or server-backed catalog.
-- Place details are provisional and require review with LASU before operational use.
-- Browser geolocation requires permission and a secure context (HTTPS, or localhost during development).
-- The location button centers the map on the device's current coordinates; those coordinates are not sent to an application backend.
-- No route calculation, directions, traffic, building access details, or live campus conditions are implemented.
+- Campus destination markers and map-driven destination zooming are pending LASU-verified coordinates.
+- Search covers only the two provisional catalog records; it has no geocoder or server-backed dataset.
+- The map and tiles require an internet connection; offline maps are not implemented.
+- Browser geolocation requires permission and a secure context (HTTPS or localhost during development). Device coordinates are used only to center the browser map and are not sent to an application backend.
+- Route calculation, turn-by-turn or voice guidance, AI responses, traffic, building access details, and live campus updates are not implemented.
