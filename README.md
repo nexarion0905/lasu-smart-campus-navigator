@@ -1,6 +1,6 @@
 # LASU Smart Campus Navigator
 
-A mobile-first MapLibre application foundation for Lagos State University. The interface includes a responsive campus map, destination search, a selected-place details panel, and browser geolocation. No LASU-verified campus destination dataset is available in this milestone, so the map clearly shows that destination pins are pending verification.
+A mobile-first campus navigation project for Lagos State University (LASU). The current milestone provides an interactive map foundation, searchable destination listings, a selected-place details panel, and browser geolocation. It does not yet provide AI responses, route calculation, or voice-guided navigation. No LASU-verified campus destination dataset is available, so destination pins remain pending verification.
 
 ## Requirements
 
@@ -27,7 +27,7 @@ npm test
 npm run build
 ```
 
-Vitest tests cover the typed place model, verified-only map filtering, search behavior, empty datasets, and map-style URL validation.
+Vitest tests cover the typed place model, verified-only map filtering, search behavior, empty datasets, map-style URL validation, and map error classification.
 
 ## Map provider configuration
 
